@@ -1,0 +1,138 @@
+<html>
+<head>
+	<title>Quick Timer</title>
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container" id="main">
+	<form onSubmit='startTimer(); return false;'>
+	<label>
+		Minutes
+		<input type="number" name="minutes" placeholder="Minutes" class="form-control" autocomplete="off"/>
+	</label>
+	<label>
+		Seconds
+		<input type="number" name="seconds" placeholder="Seconds" class="form-control" autocomplete="off" />
+	</label><br>
+	<label>
+		Label
+		<input type="text" name="label" class="form-control" autocomplete="off"/>
+	</label>
+	
+	<button class="btn btn-success">Start Timer</button>
+
+	<button class="btn btn-warning" onClick="location.reload();">Reset</button>
+	</form>
+	<div id="timers">
+
+	</div>
+</div>
+
+
+
+<audio src="ding.wav" preload="auto" id="ding" />
+
+<script>
+
+	$('input').click(function () {
+		$(this).select();
+	});
+
+	var timers = new Array();
+
+	function startTimer()
+	{
+		var seconds = $('input[name="seconds"]').val() * 1000;
+		var minutes = ($('input[name="minutes"]').val() * 1000) * 60;
+		var label = $('input[name="label"]').val();
+
+		$('input[name="seconds"]').val(null);
+		$('input[name="minutes"]').val(null);
+		$('input[name="label"]').val(null);
+
+		console.log(seconds);
+		console.log(minutes);
+
+		var totalTime = (seconds + minutes);
+
+		var startTime = new Date().getTime();
+
+		var stopTime = startTime + totalTime;
+		
+		console.log(startTime);
+		console.log(stopTime);
+		console.log(totalTime);
+		console.log(stopTime - startTime);
+
+		var timerId = "timer_" + (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+		
+		$('#timers').append("<div id='" + timerId + "'></div>");
+
+		var interval = setInterval(function () {
+			var currentTime = new Date().getTime();
+
+			if (currentTime > stopTime) {
+				console.log("finished");
+				document.getElementById('ding').play();
+				var buzzer = setInterval("document.getElementById('ding').play();", 2000);
+				setTimeout(function () {
+					clearInterval(buzzer);
+				}, 6500);
+
+				
+			}
+
+			var remaining = stopTime - currentTime;
+			var inSeconds = Math.round(remaining / 1000);
+
+			var inMinutes = Math.floor(inSeconds / 60);
+			var secRemain = inSeconds % 60;
+
+			console.log("Time remaining: " + inSeconds);
+			console.log(inMinutes + "m " + secRemain + "s");
+
+			if (secRemain < 10) {
+				secRemain = "0" + secRemain;
+			}
+
+			if (remaining < 0) {
+				var output = "<span style='color: red'>0:00</span>";
+			} else {
+				var output = inMinutes + ":" + secRemain;	
+			}
+
+			output = output + " " + label;
+
+			$('#' + timerId).html(output);
+			
+
+		}, 500);
+
+		setTimeout(function () {
+
+			clearInterval(interval);
+			console.log("Stopping the timer");
+			console.log(interval);
+		}, totalTime + 900);
+
+		
+	}
+
+
+</script>
+
+<style>
+	div#main {
+		text-align: center;
+	}
+
+	div#timers {
+		font-size: 4em;
+	}
+</style>
+
+</body>
+</html>
